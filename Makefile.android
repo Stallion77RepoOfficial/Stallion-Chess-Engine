@@ -1,0 +1,29 @@
+# Summary: Consolidated build workflow and guarded strip step for Android target.
+.PHONY: build default
+
+EXE := stallion_eas_android
+
+SOURCES := src/stallion.cpp \
+           fathom/src/tbprobe.cpp \
+           fathom/src/tbchess.cpp
+
+CXX := # Your NDK PATH
+CXXFLAGS := -O3 -std=c++23 -ffast-math -pthread -march=armv8-a
+
+LINKER := -lm -static-libstdc++
+
+OUT := $(EXE)
+
+STRIP := llvm-strip
+
+build: $(EXE)
+
+default: build
+
+$(EXE): $(SOURCES)
+	$(CXX) $^ $(CXXFLAGS) -o $(OUT) $(LINKER)
+	@if command -v $(STRIP) >/dev/null 2>&1; then \
+	$(STRIP) $(OUT); \
+	else \
+	echo "Strip tool '$(STRIP)' not found; skipping."; \
+	fi

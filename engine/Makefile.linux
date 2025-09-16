@@ -1,0 +1,27 @@
+# Summary: Unified build targets and ensured strip command runs safely with newline termination.
+# Linux build
+.PHONY: build default
+
+EXE := stallion_eas_linux
+
+SOURCES := src/stallion.cpp \
+           fathom/src/tbprobe.cpp \
+           fathom/src/tbchess.cpp
+
+CXX := g++
+CXXFLAGS := -O3 -std=c++23 -ffast-math -pthread
+LINKER := -lm
+OUT := $(EXE)
+STRIP := strip
+
+build: $(EXE)
+
+default: build
+
+$(EXE): $(SOURCES)
+	$(CXX) $^ $(CXXFLAGS) -o $(OUT) $(LINKER)
+	@if command -v $(STRIP) >/dev/null 2>&1; then \
+	$(STRIP) $(OUT); \
+	else \
+	echo "Strip tool '$(STRIP)' not found; skipping."; \
+	fi

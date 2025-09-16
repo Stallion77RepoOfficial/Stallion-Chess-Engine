@@ -1,0 +1,30 @@
+# Summary: Normalized targets and wrapped strip tool invocation for safer execution.
+.PHONY: build default
+
+EXE := stallion_eas_windows
+
+SOURCES := src/stallion.cpp \
+           fathom/src/tbprobe.cpp \
+           fathom/src/tbchess.cpp
+
+CXX := /opt/homebrew/opt/mingw-w64/bin/x86_64-w64-mingw32-g++
+
+CXXFLAGS := -O3 -mavx2 -std=c++23 -ffast-math -pthread
+
+LINKER := -static -static-libgcc -static-libstdc++
+
+OUT := $(EXE).exe
+
+STRIP := llvm-strip
+
+build: $(EXE)
+
+default: build
+
+$(EXE): $(SOURCES)
+	$(CXX) $^ $(CXXFLAGS) -o $(OUT) $(LINKER)
+	@if command -v $(STRIP) >/dev/null 2>&1; then \
+	$(STRIP) $(OUT); \
+	else \
+	echo "Strip tool '$(STRIP)' not found; skipping."; \
+	fi
